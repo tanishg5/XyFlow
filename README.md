@@ -24,3 +24,14 @@ Tailwind CSS - Styling
 Lucide React - Icons
 
 Vite - Build tool
+
+src/
+├── Components/
+│   └── Toolbar.jsx
+├── Nodes/
+│   ├── StartNode.jsx
+│   ├── EmailNode.jsx
+│   └── ConditionalSplitNode.jsx
+├── App.jsx
+├── main.jsx
+└── index.css
