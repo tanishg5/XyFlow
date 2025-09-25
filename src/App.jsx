@@ -1,4 +1,4 @@
-import { ReactFlow, Background, Controls, applyEdgeChanges, applyNodeChanges , addEdge } from '@xyflow/react';
+import { ReactFlow, Background, Controls, applyEdgeChanges, applyNodeChanges , addEdge} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useState, useCallback } from 'react';
 import EmailNode from './Nodes/EmailNode';
@@ -12,7 +12,7 @@ function App() {
     start: StartNode
   };
   const initialNodes = [
-    { id: '1', position: { x: 100, y: 100 }, data: { label: 'start' } , type: 'start' },
+    { id: '1', position: { x: 500, y: 200 }, data: { label: 'start' } , type: 'start' },
   ];
 
   const initialEdges = [];
