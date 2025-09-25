@@ -1,16 +1,26 @@
-# React + Vite
+A React-based workflow builder implementation using Xyflow (React Flow) that replicates the UI from the reference design.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🚀 Live Demo
+Live Demo Link (Replace with your actual Vercel/Netlify link)
 
-Currently, two official plugins are available:
+📋 Assignment Requirements
+Implemented the following four actions:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+✅ Email - Add email node to workflow
 
-## React Compiler
+✅ Add Node - Add new nodes to the flow
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+✅ Remove Node - Delete selected nodes
 
-## Expanding the ESLint configuration
+✅ Conditional Split - Add a conditional branching node
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+🛠️ Tech Stack
+React - Frontend framework
+
+Xyflow (React Flow) - Flow diagram library
+
+Tailwind CSS - Styling
+
+Lucide React - Icons
+
+Vite - Build tool
