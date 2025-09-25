@@ -25,13 +25,5 @@ Lucide React - Icons
 
 Vite - Build tool
 
-src/
-├── Components/
-│   └── Toolbar.jsx
-├── Nodes/
-│   ├── StartNode.jsx
-│   ├── EmailNode.jsx
-│   └── ConditionalSplitNode.jsx
-├── App.jsx
-├── main.jsx
-└── index.css
+<img width="372" height="340" alt="image" src="https://github.com/user-attachments/assets/a6c3fb9e-9966-469e-a31f-449cc3d0803d" />
+
