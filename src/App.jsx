@@ -1,21 +1,29 @@
-import { ReactFlow, Background, Controls, applyEdgeChanges, applyNodeChanges, addEdge } from '@xyflow/react';
+import { ReactFlow, Background, Controls, applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useState, useCallback } from 'react';
+import StartNode from './Nodes/StartNode';
 import EmailNode from './Nodes/EmailNode';
 import ConditionalSplitNode from './Nodes/ConditionalSplitNode';
-import StartNode from './Nodes/StartNode';
+import PlusNode from './Nodes/PlusNode';
 import Toolbar from './Components/Toolbar';
 
 function App() {
   const nodeTypes = {
+    start: StartNode,
     email: EmailNode,
     conditional: ConditionalSplitNode,
-    start: StartNode,
-    generic: StartNode,
+    plus: PlusNode,
   };
 
-  const [nodes, setNodes] = useState([{ id: '1', type: 'start', position: { x: 500, y: 200 }, data: { label: 'Start' } }]);
-  const [edges, setEdges] = useState([]);
+  const initialNodes = [
+    { id: 'start-1', type: 'start', position: { x: 500, y: 200 }, data: { label: 'Start' } },
+    { id: 'plus-1', type: 'plus', position: { x: 500, y: 350 }, data: { label: '+' } },
+  ];
+
+  const initialEdges = [{ id: 'edge-start-1-plus-1', source: 'start-1', target: 'plus-1' }];
+
+  const [nodes, setNodes] = useState(initialNodes);
+  const [edges, setEdges] = useState(initialEdges);
   const [selectedNode, setSelectedNode] = useState(null);
 
   const onNodesChange = useCallback((changes) => setNodes((nds) => applyNodeChanges(changes, nds)), []);
@@ -24,29 +32,14 @@ function App() {
   const onNodeClick = useCallback((e, node) => setSelectedNode(node.id), []);
   const onPaneClick = useCallback(() => setSelectedNode(null), []);
 
-  const onAddNode = useCallback(
-    (type) => {
-      const lastNode = nodes[nodes.length - 1];
-      const newNode = {
-        id: `${Date.now()}`,
-        type,
-        position: { x: lastNode.position.x, y: lastNode.position.y + 120 },
-        data: { label: type === 'email' ? 'Send Email' : type === 'conditional' ? 'Conditional Split' : 'New Node' },
-      };
-      setNodes((nds) => [...nds, newNode]);
-    },
-    [nodes]
-  );
-
   const onRemoveSelected = useCallback(() => {
-    if (selectedNode && selectedNode !== '1') {
+    if (selectedNode && !selectedNode.startsWith('start') && !selectedNode.startsWith('plus')   ) {
       setNodes((nds) => nds.filter((n) => n.id !== selectedNode));
       setEdges((eds) => eds.filter((e) => e.source !== selectedNode && e.target !== selectedNode));
       setSelectedNode(null);
     }
   }, [selectedNode]);
 
-  // Drag-and-drop handlers
   const onDragOver = useCallback((event) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -55,33 +48,103 @@ function App() {
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
-      const reactFlowBounds = event.currentTarget.getBoundingClientRect();
+  
       const type = event.dataTransfer.getData('application/reactflow');
       if (!type) return;
-
-      const position = { x: event.clientX - reactFlowBounds.left, y: event.clientY - reactFlowBounds.top };
+  
+      const reactFlowBounds = event.currentTarget.getBoundingClientRect();
+      const dropX = event.clientX - reactFlowBounds.left;
+      const dropY = event.clientY - reactFlowBounds.top;
+  
+      // Find the + node closest to drop position
+      const plusNodes = nodes.filter((n) => n.type === 'plus');
+      if (!plusNodes.length) return;
+  
+      let plusNode = plusNodes[0];
+      let minDistance = Infinity;
+      plusNodes.forEach((n) => {
+        const dx = n.position.x - dropX;
+        const dy = n.position.y - dropY;
+        const dist = dx * dx + dy * dy;
+        if (dist < minDistance) {
+          plusNode = n;
+          minDistance = dist;
+        }
+      });
+  
+      // Create new node at + node's position
+      const newNodeId = `node-${Date.now()}`;
       const newNode = {
-        id: `${Date.now()}`,
+        id: newNodeId,
         type,
-        position,
-        data: { label: type === 'email' ? 'Send Email' : type === 'conditional' ? 'Conditional Split' : 'New Node' },
+        position: plusNode.position,
+        data: {
+          label:
+            type === 'email'
+              ? 'Send Email'
+              : type === 'conditional'
+              ? 'Conditional Split'
+              : 'New Node',
+        },
       };
-      setNodes((nds) => [...nds, newNode]);
+  
+      // Determine source handles
+      const sourceHandles = type === 'conditional' ? ['true', 'false'] : ['default'];
+  
+      // Create + nodes for each source handle
+      const spacing = 200;
+      const startX = plusNode.position.x - ((sourceHandles.length - 1) * spacing) / 2;
+      const newPlusNodes = sourceHandles.map((h, idx) => ({
+        id: `plus-${Date.now()}-${idx}`,
+        type: 'plus',
+        position: { x: startX + idx * spacing, y: plusNode.position.y + 150 },
+        data: { label: '+' },
+      }));
+  
+      // Update nodes: replace + node with new node, add new + nodes
+      setNodes((nds) =>
+        nds.map((n) => (n.id === plusNode.id ? newNode : n)).concat(newPlusNodes)
+      );
+  
+      // Update edges
+      const incomingEdges = edges.filter((e) => e.target === plusNode.id);
+      const updatedEdges = [
+        // Remove edges connected to old + node
+        ...edges.filter((e) => e.source !== plusNode.id && e.target !== plusNode.id),
+        // Reconnect incoming edges to the new node
+        ...incomingEdges.map((e) => ({ ...e, target: newNode.id })),
+        // Connect new node's source handles to new + nodes
+        ...newPlusNodes.map((p, idx) => ({
+          id: `edge-${newNodeId}-${p.id}`,
+          source: newNodeId,
+          target: p.id,
+          sourceHandle: sourceHandles[idx] !== 'default' ? sourceHandles[idx] : undefined,
+        })),
+      ];
+  
+      setEdges(updatedEdges);
     },
-    [setNodes]
+    [nodes, edges]
   );
+  
+
+  // Toolbar click insertion
+  const handleAddNode = (type) => {
+    const mockEvent = { dataTransfer: { getData: () => type }, preventDefault: () => {} };
+    onDrop(mockEvent);
+  };
 
   return (
     <div className="h-full w-full flex">
-      <Toolbar selectedNode={selectedNode} onAddNode={onAddNode} onRemoveSelected={onRemoveSelected} />
+      <Toolbar selectedNode={selectedNode} onRemoveSelected={onRemoveSelected} onAddNode={handleAddNode} />
       <div className="flex-1" style={{ height: '100vh' }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          nodeTypes={nodeTypes}
           onNodeClick={onNodeClick}
           onPaneClick={onPaneClick}
           onDrop={onDrop}

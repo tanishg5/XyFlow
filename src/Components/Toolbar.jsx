@@ -8,13 +8,18 @@ export default function Toolbar({ selectedNode, onAddNode, onRemoveSelected }) {
     { id: 'conditional', label: 'Conditional Split', color: 'bg-purple-500', type: 'conditional', icon: GitBranch },
   ];
 
-  const onDragStart = (event, nodeType) => {
-    event.dataTransfer.setData('application/reactflow', nodeType);
+  const onDragStart = (event, type) => {
+    event.dataTransfer.setData('application/reactflow', type);
     event.dataTransfer.effectAllowed = 'move';
   };
 
   return (
     <div className="bg-gray-50 border-r border-gray-200 p-6 h-full w-52 flex flex-col items-start space-y-5 shadow-lg">
+      <img
+        src="https://media.licdn.com/dms/image/v2/D560BAQFcFE5z-JBG1Q/company-logo_200_200/B56ZjVYy1XH8AI-/0/1755926706826/brixi_logo?e=1761782400&v=beta&t=5e-4Vxk1rD3qk53GRx-7KK1TzPfKekPzDNFgOIWywnE"
+        alt="Logo"
+        className="w-14 h-14 rounded-full mb-6 object-cover border-2 border-gray-300"
+      />
       {tools.map((tool) => {
         const Icon = tool.icon;
         const isDisabled = tool.type === 'remove' && (!selectedNode || selectedNode === '1');
@@ -30,8 +35,11 @@ export default function Toolbar({ selectedNode, onAddNode, onRemoveSelected }) {
             draggable={tool.type !== 'remove'}
             onDragStart={tool.type !== 'remove' ? (e) => onDragStart(e, tool.type) : undefined}
             onClick={() => {
-              if (tool.type === 'remove') onRemoveSelected();
-              else onAddNode(tool.type);
+              if (tool.type === 'remove') {
+                onRemoveSelected();
+              } else if (onAddNode) {
+                onAddNode(tool.type); // insert node at the current + node
+              }
             }}
             disabled={isDisabled}
           >
