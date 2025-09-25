@@ -1,7 +1,7 @@
-A React-based workflow builder implementation using Xyflow (React Flow) that replicates the UI from the reference design.
+A React-based workflow builder implementation using Xyflow (React Flow)
 
 🚀 Live Demo
-Live Demo Link (Replace with your actual Vercel/Netlify link)
+Live Demo: https://xy-flow.vercel.app/
 
 📋 Assignment Requirements
 Implemented the following four actions:
