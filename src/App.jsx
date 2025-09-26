@@ -33,12 +33,19 @@ function App() {
   const onPaneClick = useCallback(() => setSelectedNode(null), []);
 
   const onRemoveSelected = useCallback(() => {
-    if (selectedNode && !selectedNode.startsWith('start') && !selectedNode.startsWith('plus')   ) {
-      setNodes((nds) => nds.filter((n) => n.id !== selectedNode));
+    if (selectedNode && !selectedNode.startsWith('start') && !selectedNode.startsWith('plus')) {
+      // Remove only non-plus nodes
+      setNodes((nds) =>
+        nds.filter((n) => n.id !== selectedNode)
+      );
+  
+      // Remove edges connected to deleted node dont keep edges connected to plus nodes
       setEdges((eds) => eds.filter((e) => e.source !== selectedNode && e.target !== selectedNode));
+  
       setSelectedNode(null);
     }
   }, [selectedNode]);
+  
 
   const onDragOver = useCallback((event) => {
     event.preventDefault();
@@ -128,7 +135,7 @@ function App() {
   );
   
 
-  // Toolbar click insertion
+
   const handleAddNode = (type) => {
     const mockEvent = { dataTransfer: { getData: () => type }, preventDefault: () => {} };
     onDrop(mockEvent);
