@@ -22,7 +22,7 @@ export default function Toolbar({ selectedNode, onAddNode, onRemoveSelected }) {
       />
       {tools.map((tool) => {
         const Icon = tool.icon;
-        const isDisabled = tool.type === 'remove' && (!selectedNode || selectedNode === '1');
+        const isDisabled = tool.type === 'remove' && (!selectedNode || selectedNode.startsWith('start') || selectedNode.startsWith('plus'));
 
         return (
           <button
